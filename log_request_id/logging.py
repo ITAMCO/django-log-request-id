@@ -61,7 +61,7 @@ class Logger:
                     kwargs['extra'] = {}
                 kwargs['extra']['request_id'] = request_id
 
-            return getattr(self.logger, name)(self.logger, *tuple(args), **kwargs)
+            return getattr(self.logger, name)(*tuple(args), **kwargs)
         return method
 
 

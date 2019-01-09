@@ -25,6 +25,8 @@ class Logger:
 
     def __getattr__(self, name):
         def method(*args, **kwargs):
+            args = list(args)
+
             request_id = None
 
             # If request is first arg, grab id there
@@ -59,7 +61,7 @@ class Logger:
                     kwargs['extra'] = {}
                 kwargs['extra']['request_id'] = request_id
 
-            return getattr(self.logger, name)(self.logger, *args, **kwargs)
+            return getattr(self.logger, name)(self.logger, *tuple(args), **kwargs)
         return method
 
 

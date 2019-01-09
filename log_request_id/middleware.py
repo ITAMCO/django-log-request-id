@@ -7,7 +7,7 @@ try:
 except ImportError:
     MiddlewareMixin = object
 from log_request_id import local, REQUEST_ID_HEADER_SETTING, LOG_REQUESTS_SETTING, NO_REQUEST_ID, \
-    REQUEST_ID_RESPONSE_HEADER_SETTING, GENERATE_REQUEST_ID_IF_NOT_IN_HEADER_SETTING
+    REQUEST_ID_RESPONSE_HEADER_SETTING, GENERATE_REQUEST_ID_IF_NOT_IN_HEADER_SETTING, LOG_REQUEST_START_SETTING
 
 
 logger = logging.getLogger(__name__)
@@ -19,6 +19,12 @@ class RequestIDMiddleware(MiddlewareMixin):
         request_id = self._get_request_id(request)
         local.request_id = request_id
         request.id = request_id
+
+        if getattr(settings, LOG_REQUEST_START_SETTING, False):
+            message = '[REQUEST_START] method=%s path=%s'
+            args = (request.method, request.path,)
+
+            logger.debug(request, message, *args)
 
     def process_response(self, request, response):
         if getattr(settings, REQUEST_ID_RESPONSE_HEADER_SETTING, False) and getattr(request, 'id', None):
@@ -49,6 +55,18 @@ class RequestIDMiddleware(MiddlewareMixin):
             pass
 
         return response
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        logger.debug(request, 'view_func=%s', view_func.__name__)
+
+        # Continue and let django process via other middleware
+        return None
+
+    def process_exception(self, request, exception):
+        logger.exception(request)
+
+        # Continue and let django process via other middleware
+        return None
 
     def _get_request_id(self, request):
         request_id_header = getattr(settings, REQUEST_ID_HEADER_SETTING, None)

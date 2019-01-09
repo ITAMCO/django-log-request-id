@@ -63,7 +63,7 @@ class RequestIDMiddleware(MiddlewareMixin):
         return None
 
     def process_exception(self, request, exception):
-        logger.exception(request)
+        logger.exception(request, '[REQUEST_ERROR]', exc_info=exception)
 
         # Continue and let django process via other middleware
         return None

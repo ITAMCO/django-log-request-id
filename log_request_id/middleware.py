@@ -1,4 +1,4 @@
-import logging
+from log_request_id import logging
 import uuid
 
 from django.conf import settings

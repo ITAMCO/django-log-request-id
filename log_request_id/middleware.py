@@ -41,7 +41,7 @@ class RequestIDMiddleware(MiddlewareMixin):
             message += ' user=%s'
             args += (user_id,)
 
-        logger.info(message, *args)
+        logger.info(request, message, *args)
         
         try:
             del local.request_id

@@ -21,7 +21,7 @@ class RequestIDMiddleware(MiddlewareMixin):
         request.id = request_id
 
         if getattr(settings, LOG_REQUEST_START_SETTING, False):
-            message = '[REQUEST_START] method=%s path=%s'
+            message = '[PROCESS_REQUEST] method=%s path=%s'
             args = (request.method, request.path,)
 
             logger.debug(request, message, *args)
@@ -40,7 +40,7 @@ class RequestIDMiddleware(MiddlewareMixin):
         user = getattr(request, 'user', None)
         user_id = getattr(user, 'pk', None) or getattr(user, 'id', None)
 
-        message = 'method=%s path=%s status=%s'
+        message = '[PROCESS_RESPONSE] method=%s path=%s status=%s'
         args = (request.method, request.path, response.status_code)
 
         if user_id:
@@ -57,7 +57,7 @@ class RequestIDMiddleware(MiddlewareMixin):
         return response
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        logger.debug(request, 'view_func=%s', view_func.__name__)
+        logger.debug(request, '[PROCESS_VIEW] view_func=%s', view_func.__name__, extra={'view_func':view_func.__name__})
 
         # Continue and let django process via other middleware
         return None

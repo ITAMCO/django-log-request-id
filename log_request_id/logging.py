@@ -27,39 +27,50 @@ class Logger:
         def method(*args, **kwargs):
             args = list(args)
 
-            request_id = None
+            request = None
 
             # If request is first arg, grab id there
             if isinstance(args[0], REQUEST_CLASSES):
-                request_id = args[0].id
+                request = args[0]
                 del args[0]
 
             # If request is a kwarg, grab id there
             if 'request' in kwargs:
-                request_id = kwargs['request'].id
+                request = kwargs['request']
                 del kwargs['request']
 
             # If any arg is a request, grab id there
-            if request_id is None:
+            if request is None:
                 for arg in args:
                     if isinstance(arg, REQUEST_CLASSES):
-                        request_id = arg.id
+                        request = arg
                         arg.remove(arg)
                         break
 
             # If any kwarg is a request, grab id there
-            if request_id is None:
+            if request is None:
                 for key, value in kwargs.items():
                     if isinstance(value, REQUEST_CLASSES):
-                        request_id = value.id
+                        request = value
                         del kwargs[key]
                         break
 
             # If there was a request ID, add it to extras
-            if request_id is not None:
+            if request is not None:
                 if 'extra' not in kwargs:
                     kwargs['extra'] = {}
-                kwargs['extra']['request_id'] = request_id
+
+                if hasattr(request, 'id'):
+                    kwargs['extra']['request_id'] = request.id
+
+                if hasattr(request, 'method'):
+                    kwargs['extra']['method'] = request.method
+
+                if hasattr(request, 'path'):
+                    kwargs['extra']['path'] = request.path
+
+                if hasattr(request, 'status_code'):
+                    kwargs['extra']['status_code'] = request.status_code
 
             return getattr(self.logger, name)(*tuple(args), **kwargs)
         return method

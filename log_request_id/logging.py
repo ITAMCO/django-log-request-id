@@ -72,6 +72,10 @@ class Logger:
                 if hasattr(request, 'status_code'):
                     kwargs['extra']['status_code'] = request.status_code
 
+                if hasattr(request, 'user'):
+                    if hasattr(request.user, 'id'):
+                        kwargs['extra']['user'] = request.user.id
+
             return getattr(self.logger, name)(*tuple(args), **kwargs)
         return method
 
